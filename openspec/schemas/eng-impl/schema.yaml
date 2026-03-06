@@ -1,0 +1,21 @@
+name: eng-impl
+version: 1
+description: 工程層實作流程，只做 how，不重複定義 what
+
+artifacts:
+  - id: design
+    generates: design.md
+    description: 工程層設計（內部架構、module 結構、middleware 串接）
+    template: design.md
+    instruction: |
+      基於 openspec/specs/ 裡的功能層 spec，產出工程層設計。
+      只描述「怎麼做」：module 結構、middleware 串接、
+      error handling 策略等。不重複描述功能需求。
+
+  - id: tasks
+    generates: tasks.md
+    description: 實作級任務拆解
+    template: tasks.md
+    instruction: |
+      基於工程層 design，拆解為可逐一實作的細粒度任務。
+      每個任務應明確到「改哪個檔案、加什麼邏輯」的程度。
