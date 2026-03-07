@@ -1,0 +1,88 @@
+name: Spec Audit
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+jobs:
+  audit:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm ci
+
+      - name: Install Claude Code CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run spec audit
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Get PR diff (src/ only, truncated to 10k chars)
+          PR_DIFF=$(git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} -- 'src/' | head -c 10000)
+
+          claude -p "你是 Spec Audit 機器人。
+
+          ## 任務
+          檢查這個 PR 的程式碼變更是否有對應的測試覆蓋。
+
+          ## 步驟
+          1. 讀取 openspec/specs/ 下所有 spec.md，提取 BDD scenarios
+          2. 讀取這個 PR 的 diff：
+          $PR_DIFF
+          3. 檢查：每個被修改或新增的行為，是否在 test 檔案中有對應的測試
+          4. 跑 npm test 確認測試通過
+          5. 把結果寫到 /tmp/audit-result.json：
+             { \"pass\": boolean, \"concerns\": [{ \"scenario\": \"...\", \"issue\": \"...\" }] }
+
+          只做分析，不要修改任何程式碼。" \
+            --allowedTools "Read" "Bash(npm test:*)" "Bash(cat:*)" "Write(/tmp/*)"
+
+      - name: Process audit result
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let result;
+            try {
+              result = JSON.parse(fs.readFileSync('/tmp/audit-result.json', 'utf8'));
+            } catch (e) {
+              console.log('No audit result found, skipping');
+              return;
+            }
+
+            if (!result.pass && result.concerns?.length > 0) {
+              const concerns = result.concerns
+                .map(c => `- **${c.scenario}**: ${c.issue}`)
+                .join('\n');
+
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: `Spec Mismatch: ${context.payload.pull_request.title}`,
+                body: [
+                  `## PR`,
+                  `#${context.payload.pull_request.number}`,
+                  '',
+                  '## Concerns',
+                  concerns,
+                  '',
+                  '## Action Required',
+                  'PM 和工程師請確認：是要補測試、改 code、還是更新 spec？',
+                  '此 issue 在 spec 和 code 對齊前不應 close。',
+                ].join('\n'),
+                labels: ['spec-mismatch'],
+              });
+              core.warning('Spec audit found concerns - created Spec Mismatch issue');
+            } else {
+              console.log('Spec audit passed');
+            }
