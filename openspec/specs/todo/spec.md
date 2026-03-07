@@ -27,7 +27,7 @@ lastUpdated: 2026-03-06
 - **建立 Todo**：用戶輸入標題（必填，1-100 字元）和描述（選填，0-1000 字元），系統建立一筆新的 todo，預設狀態為 active。
 - **列表 Todo**：用戶可以查看所有 todo，支援篩選：all（全部）、active（未完成）、completed（已完成）。
 - **切換完成狀態**：用戶可以將 active todo 標記為 completed，也可以把 completed 切回 active。
-- **刪除 Todo**：用戶可以永久刪除一筆 todo（無軟刪除）。
+- **刪除 Todo**：用戶可以永久刪除一筆 todo（無軟刪除、不可恢復、不會進回收站）。
 
 ## 4. Behavioral Spec
 
