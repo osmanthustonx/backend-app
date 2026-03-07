@@ -24,7 +24,7 @@ lastUpdated: 2026-03-06
 
 ## 3. Functional Requirements
 
-- **建立 Todo**：用戶輸入標題（必填，1-200 字元）和描述（選填，0-1000 字元），系統建立一筆新的 todo，預設狀態為 active。
+- **建立 Todo**：用戶輸入標題（必填，1-100 字元）和描述（選填，0-1000 字元），系統建立一筆新的 todo，預設狀態為 active。
 - **列表 Todo**：用戶可以查看所有 todo，支援篩選：all（全部）、active（未完成）、completed（已完成）。
 - **切換完成狀態**：用戶可以將 active todo 標記為 completed，也可以把 completed 切回 active。
 - **刪除 Todo**：用戶可以永久刪除一筆 todo（無軟刪除）。
@@ -43,10 +43,10 @@ lastUpdated: 2026-03-06
   When 提交空白標題
   Then 系統回傳 400，錯誤訊息 "Title is required"
 
-#### Scenario: 標題超過 200 字元
+#### Scenario: 標題超過 100 字元
   Given 用戶在建立表單
-  When 輸入超過 200 字元的標題並提交
-  Then 系統回傳 400，錯誤訊息 "Title must be 200 characters or less"
+  When 輸入超過 100 字元的標題並提交
+  Then 系統回傳 400，錯誤訊息 "Title must be 100 characters or less"
 
 ### List Todos
 
