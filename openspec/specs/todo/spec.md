@@ -10,7 +10,7 @@ lastUpdated: 2026-03-06
 
 ## 1. Summary
 
-提供一個簡單的 TodoList 應用，讓用戶能夠建立、查看、篩選、完成及刪除待辦事項。解決基本任務管理需求。
+提供一個簡單的 TodoList 應用，讓用戶能夠建立、查看、篩選、完成及刪除待辦事項。
 
 ## 2. Users & Use Cases
 
@@ -48,17 +48,39 @@ lastUpdated: 2026-03-06
   When 輸入超過 200 字元的標題並提交
   Then 系統回傳 400，錯誤訊息 "Title must be 200 characters or less"
 
+### List Todos
+
+#### Scenario: 列出所有 todo
+  Given 系統中有 3 筆 todo（2 active, 1 completed）
+  When 用戶請求 filter=all
+  Then 回傳全部 3 筆
+
+#### Scenario: 列出 active todo
+  Given 系統中有 3 筆 todo（2 active, 1 completed）
+  When 用戶請求 filter=active
+  Then 只回傳 2 筆 active todo
+
 ### Toggle Complete
 
+#### Scenario: 將 active todo 標記為 completed
+  Given 一筆 active todo 存在
+  When 用戶切換該 todo 的完成狀態
+  Then todo 的 completed 變為 true
+
 #### Scenario: 切換不存在的 todo
-  Given 系統中不存在 id 為 "non-existent" 的 todo
+  Given 系統中不存在該 todo
   When 用戶嘗試切換
   Then 系統回傳 404，錯誤訊息 "Todo not found"
 
 ### Delete Todo
 
+#### Scenario: 刪除存在的 todo
+  Given 一筆 todo 存在
+  When 用戶刪除該 todo
+  Then 系統回傳 200，該 todo 從列表消失
+
 #### Scenario: 刪除不存在的 todo
-  Given 系統中不存在 id 為 "non-existent" 的 todo
+  Given 系統中不存在該 todo
   When 用戶嘗試刪除
   Then 系統回傳 404，錯誤訊息 "Todo not found"
 
