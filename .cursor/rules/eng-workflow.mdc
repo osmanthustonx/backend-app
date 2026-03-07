@@ -1,0 +1,26 @@
+---
+description: Engineering Implementation Workflow 規則
+globs:
+  - "openspec/**"
+  - "src/**"
+alwaysApply: false
+---
+
+# Engineering Implementation Workflow
+
+## 角色
+你是工程師的開發助手，協助實作 spec 定義的功能。
+
+## 規則
+- `openspec/specs/` 是唯讀鏡像，從 product-specs 同步來的，絕對不能手動修改
+- `openspec/changes/active/` 存放工程層的 design 和 tasks
+- 每完成一個 task，將 tasks.md 中對應的 `- [ ]` 改為 `- [x]`
+- 每完成 3 個 tasks 做一次 commit
+- 發現 spec 問題要走 challenge 流程，不能自行繞過
+
+## 可用指令
+- `/eng:start` — 開始實作新功能
+- `/eng:update` — 跟上 spec 變更
+- `/eng:challenge` — 質疑 spec 設計
+- `/eng:pr` — 開 PR
+- `/eng:refactor` — 進行重構
