@@ -126,6 +126,119 @@ describe('Todo API', () => {
     });
   });
 
+  describe('PUT /api/todos/:id', () => {
+    it('updates todo title', async () => {
+      const todo = store.create({ title: 'Old title' });
+      const res = await app.request(`/api/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'New title' }),
+      });
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data.title).toBe('New title');
+    });
+
+    it('updates todo description', async () => {
+      const todo = store.create({ title: 'Title', description: 'Old desc' });
+      const res = await app.request(`/api/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: 'New desc' }),
+      });
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data.description).toBe('New desc');
+    });
+
+    it('returns 400 when no fields provided', async () => {
+      const todo = store.create({ title: 'Title' });
+      const res = await app.request(`/api/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for empty title', async () => {
+      const todo = store.create({ title: 'Title' });
+      const res = await app.request(`/api/todos/${todo.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: '' }),
+      });
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 404 for non-existent todo', async () => {
+      const res = await app.request('/api/todos/non-existent', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: 'New' }),
+      });
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('GET /api/todos with search', () => {
+    it('searches todos by keyword', async () => {
+      store.create({ title: 'Buy groceries' });
+      store.create({ title: 'Read book' });
+      store.create({ title: 'Buy milk' });
+      const res = await app.request('/api/todos?search=buy');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data).toHaveLength(2);
+    });
+
+    it('search combined with filter', async () => {
+      const t1 = store.create({ title: 'Buy groceries' });
+      store.create({ title: 'Buy milk' });
+      store.toggleComplete(t1.id);
+      const res = await app.request('/api/todos?search=buy&filter=active');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data).toHaveLength(1);
+    });
+  });
+
+  describe('GET /api/todos with sort', () => {
+    it('returns todos sorted by createdAt desc by default', async () => {
+      store.clear();
+      const t1 = store.create({ title: 'First' });
+      (t1 as any).createdAt = '2026-01-01T00:00:00.000Z';
+      const t2 = store.create({ title: 'Second' });
+      (t2 as any).createdAt = '2026-01-02T00:00:00.000Z';
+      const res = await app.request('/api/todos');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data[0].title).toBe('Second');
+    });
+
+    it('returns todos sorted by createdAt asc', async () => {
+      store.clear();
+      const t1 = store.create({ title: 'First' });
+      (t1 as any).createdAt = '2026-01-01T00:00:00.000Z';
+      const t2 = store.create({ title: 'Second' });
+      (t2 as any).createdAt = '2026-01-02T00:00:00.000Z';
+      const res = await app.request('/api/todos?sort=createdAt&order=asc');
+      expect(res.status).toBe(200);
+      const json = await res.json();
+      expect(json.data[0].title).toBe('First');
+    });
+
+    it('returns 400 for invalid sort field', async () => {
+      const res = await app.request('/api/todos?sort=invalid');
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 400 for invalid order', async () => {
+      const res = await app.request('/api/todos?order=invalid');
+      expect(res.status).toBe(400);
+    });
+  });
+
   describe('DELETE /api/todos/:id', () => {
     it('deletes existing todo', async () => {
       const todo = store.create({ title: 'Test' });

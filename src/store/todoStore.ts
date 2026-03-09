@@ -1,4 +1,6 @@
-import type { Todo, CreateTodoInput, TodoFilter } from '../types/todo.js';
+import type { Todo, CreateTodoInput, UpdateTodoInput, TodoFilter } from '../types/todo.js';
+
+export type SortOrder = 'asc' | 'desc';
 
 const todos = new Map<string, Todo>();
 
@@ -16,16 +18,25 @@ export function create(input: CreateTodoInput): Todo {
   return todo;
 }
 
-export function getAll(filter: TodoFilter = 'all'): Todo[] {
-  const all = Array.from(todos.values());
+export function getAll(
+  filter: TodoFilter = 'all',
+  sort: 'createdAt' = 'createdAt',
+  order: SortOrder = 'desc',
+): Todo[] {
+  let result = Array.from(todos.values());
   switch (filter) {
     case 'active':
-      return all.filter((t) => !t.completed);
+      result = result.filter((t) => !t.completed);
+      break;
     case 'completed':
-      return all.filter((t) => t.completed);
-    default:
-      return all;
+      result = result.filter((t) => t.completed);
+      break;
   }
+  result.sort((a, b) => {
+    const cmp = a[sort].localeCompare(b[sort]);
+    return order === 'asc' ? cmp : -cmp;
+  });
+  return result;
 }
 
 export function getById(id: string): Todo | undefined {
@@ -38,6 +49,29 @@ export function toggleComplete(id: string): Todo | undefined {
   todo.completed = !todo.completed;
   todo.updatedAt = new Date().toISOString();
   return todo;
+}
+
+export function update(id: string, input: UpdateTodoInput): Todo | undefined {
+  const todo = todos.get(id);
+  if (!todo) return undefined;
+  if (input.title !== undefined) {
+    todo.title = input.title.trim();
+  }
+  if (input.description !== undefined) {
+    todo.description = input.description.trim() || undefined;
+  }
+  todo.updatedAt = new Date().toISOString();
+  return todo;
+}
+
+export function search(keyword: string, filter: TodoFilter = 'all'): Todo[] {
+  const lower = keyword.toLowerCase();
+  const all = getAll(filter);
+  return all.filter(
+    (t) =>
+      t.title.toLowerCase().includes(lower) ||
+      (t.description?.toLowerCase().includes(lower) ?? false),
+  );
 }
 
 export function remove(id: string): boolean {
