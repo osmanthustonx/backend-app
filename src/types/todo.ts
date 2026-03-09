@@ -12,4 +12,9 @@ export interface CreateTodoInput {
   description?: string;
 }
 
+export interface UpdateTodoInput {
+  title?: string;
+  description?: string;
+}
+
 export type TodoFilter = 'all' | 'active' | 'completed';
