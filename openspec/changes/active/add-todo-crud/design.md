@@ -19,7 +19,7 @@ src/
 
 ### Edit (PUT /api/todos/:id)
 - 接收 `{ title?, description? }`，至少要有一個欄位
-- 驗證規則與 create 相同（title ≤ 200 字元、description ≤ 1000 字元）
+- 驗證規則與 create 相同（title ≤ 300 字元、description ≤ 1000 字元）
 - 更新 `updatedAt` timestamp
 - 找不到回 404
 

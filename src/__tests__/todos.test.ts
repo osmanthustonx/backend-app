@@ -56,15 +56,15 @@ describe('Todo API', () => {
       expect(json.error.message).toBe('Title is required');
     });
 
-    it('returns 400 for title exceeding 200 chars', async () => {
+    it('returns 400 for title exceeding 300 chars', async () => {
       const res = await app.request('/api/todos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: 'a'.repeat(201) }),
+        body: JSON.stringify({ title: 'a'.repeat(301) }),
       });
       expect(res.status).toBe(400);
       const json = await res.json();
-      expect(json.error.message).toBe('Title must be 200 characters or less');
+      expect(json.error.message).toBe('Title must be 300 characters or less');
     });
   });
 

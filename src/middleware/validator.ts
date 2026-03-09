@@ -15,8 +15,8 @@ export function validateCreateInput(body: unknown): CreateTodoInput {
     throw new AppError(400, 'VALIDATION_ERROR', 'Title is required');
   }
 
-  if (title.trim().length > 200) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'Title must be 200 characters or less');
+  if (title.trim().length > 300) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Title must be 300 characters or less');
   }
 
   if (description !== undefined && description !== null) {
@@ -49,8 +49,8 @@ export function validateUpdateInput(body: unknown): UpdateTodoInput {
     if (typeof title !== 'string' || title.trim().length === 0) {
       throw new AppError(400, 'VALIDATION_ERROR', 'Title cannot be empty');
     }
-    if (title.trim().length > 200) {
-      throw new AppError(400, 'VALIDATION_ERROR', 'Title must be 200 characters or less');
+    if (title.trim().length > 300) {
+      throw new AppError(400, 'VALIDATION_ERROR', 'Title must be 300 characters or less');
     }
   }
 
