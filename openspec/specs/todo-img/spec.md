@@ -3,6 +3,7 @@ featureId: todo-img
 title: Todo 圖片附加功能
 status: draft
 owner: PM
+depends: [add-todo-crud]
 lastUpdated: 2026-03-10
 ---
 
