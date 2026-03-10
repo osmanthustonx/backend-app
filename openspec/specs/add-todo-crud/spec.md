@@ -3,8 +3,9 @@ featureId: add-todo-crud
 title: 個人待辦清單 CRUD
 status: draft
 owner: PM
-lastUpdated: 2026-03-09
-lastChange: update-todo-title-max-length-300
+depends: []
+lastUpdated: 2026-03-10
+lastChange: update-todo-description-limit
 ---
 
 # 個人待辦清單 CRUD
