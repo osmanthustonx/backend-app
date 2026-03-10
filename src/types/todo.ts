@@ -5,6 +5,8 @@ export interface Todo {
   completed: boolean;
   createdAt: string;
   updatedAt: string;
+  imageId?: string;
+  imagePath?: string;
 }
 
 export interface CreateTodoInput {
