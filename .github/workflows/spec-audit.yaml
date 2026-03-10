@@ -58,7 +58,8 @@ jobs:
           如果全部通過，寫：{ \"pass\": true, \"concerns\": [] }
 
           只做分析，不要修改任何程式碼。" \
-            --allowedTools "Read" "Bash(npm test:*)" "Bash(cat:*)" "Write(/tmp/*)"
+            --allowedTools "Read" "Bash(npm test:*)" "Bash(cat:*)" "Write(/tmp/*)" \
+            --permission-mode bypassPermissions
 
       - name: Process audit result
         uses: actions/github-script@v7
