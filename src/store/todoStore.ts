@@ -11,6 +11,7 @@ export function create(input: CreateTodoInput): Todo {
     title: input.title.trim(),
     description: input.description?.trim() || undefined,
     completed: false,
+    priority: input.priority || 'medium',
     createdAt: now,
     updatedAt: now,
   };
