@@ -41,8 +41,21 @@ jobs:
           $PR_DIFF
           3. 檢查：每個被修改或新增的行為，是否在 test 檔案中有對應的測試
           4. 跑 npm test 確認測試通過
-          5. 把結果寫到 /tmp/audit-result.json：
-             { \"pass\": boolean, \"concerns\": [{ \"scenario\": \"...\", \"issue\": \"...\" }] }
+          5. 判斷結果：如果所有 BDD scenarios 都有對應測試且測試通過，pass 為 true；否則 pass 為 false
+
+          ## 重要：你必須用 Write 工具寫結果檔案
+          你的最後一個動作必須是用 Write 工具把結果寫到 /tmp/audit-result.json。
+          這是強制要求，不能省略。不要用 print 或 console 輸出結果，必須用 Write 工具。
+
+          JSON 格式：
+          {
+            \"pass\": false,
+            \"concerns\": [
+              { \"scenario\": \"BDD scenario 名稱\", \"issue\": \"缺少什麼測試或什麼問題\" }
+            ]
+          }
+
+          如果全部通過，寫：{ \"pass\": true, \"concerns\": [] }
 
           只做分析，不要修改任何程式碼。" \
             --allowedTools "Read" "Bash(npm test:*)" "Bash(cat:*)" "Write(/tmp/*)"
