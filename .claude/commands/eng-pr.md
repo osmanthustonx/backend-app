@@ -25,15 +25,35 @@ npm test
 2. **spec-change** — 因為 spec 改了所以改 code
 3. **refactor** — 重構，不改對外行為
 
-## Step 4: 收集 PR 資訊
+## Step 4: 自動收集 PR 資訊
 
-### 如果是 spec-change
-問：「對應的 spec PR 編號是什麼？（例如 product-specs#123）」
+以下資訊全部由你自動產生，不要問工程師：
 
-### 所有情況都要問
-- 「改之前的行為是什麼？」（Before）
-- 「改之後的行為是什麼？」（After）
-- 「新增或修改了哪些測試？」
+### Behavior Diff（自動產生）
+1. 讀取 `openspec/specs/` 下對應的 spec.md，了解功能定義
+2. 跑 `git diff main` 分析程式碼變更
+3. 根據 diff 內容自動整理 Before / After 行為差異
+
+### Spec PR（自動偵測）
+如果 Reason 是 spec-change：
+1. 從 git remote 解析出 owner
+2. 用 gh CLI 查詢最近 merge 的 spec PR：
+   ```bash
+   gh pr list --repo <owner>/product-specs --state merged --limit 5 --json number,title
+   ```
+3. 自動匹配最相關的 spec PR 編號（比對功能名稱）
+4. 如果找不到，才問工程師
+
+### Tests（自動產生）
+跑 `git diff main --name-only` 找出新增或修改的 test 檔案，自動列出。
+
+### Related Issue（自動偵測）
+查詢本 repo 中對應的 spec-task issue，用來在 PR merge 時自動 close：
+```bash
+gh issue list --label "spec-task" --state open --json number,title,body
+```
+從 issue body 裡的 `featureId=<name>` 比對目前開發的功能名稱（從 branch 名或 openspec/changes/active/ 推斷）。
+找到後記下 issue number，在 PR body 加上 `Closes #N`。
 
 ## Step 5: 找到對應的 spec 連結
 
@@ -67,13 +87,16 @@ gh pr create \
 
 ## Behavior Diff
 ### Before
-<改之前的行為>
+<根據 spec + diff 自動整理>
 
 ### After
-<改之後的行為>
+<根據 spec + diff 自動整理>
 
 ## Tests
-<新增/修改的測試>"
+<自動列出新增/修改的 test 檔案>
+
+## Closes
+Closes #<偵測到的 spec-task issue number>"
 ```
 
 ## Step 8: 提醒 CI 檢查
