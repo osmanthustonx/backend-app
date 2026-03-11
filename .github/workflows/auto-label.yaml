@@ -1,0 +1,82 @@
+name: Auto Label PR
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Auto-label based on changed files
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+
+            const pathLabels = {
+              'src/routes/': 'api',
+              'src/middleware/': 'middleware',
+              'src/__tests__/': 'tests',
+              'src/store/': 'store',
+              'openspec/': 'spec',
+              '.github/': 'ci/cd',
+              '.claude/': 'tooling',
+            };
+
+            const labelsToAdd = new Set();
+            for (const file of files) {
+              for (const [path, label] of Object.entries(pathLabels)) {
+                if (file.filename.startsWith(path)) {
+                  labelsToAdd.add(label);
+                }
+              }
+            }
+
+            if (labelsToAdd.size === 0) return;
+
+            // Ensure labels exist
+            for (const label of labelsToAdd) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label,
+                });
+              } catch {
+                const colors = {
+                  'api': '0075ca',
+                  'middleware': 'e4e669',
+                  'tests': '0e8a16',
+                  'store': 'c5def5',
+                  'spec': 'd876e3',
+                  'ci/cd': 'f9d0c4',
+                  'tooling': '5319e7',
+                };
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label,
+                  color: colors[label] || 'ededed',
+                });
+              }
+            }
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              labels: [...labelsToAdd],
+            });
+
+            console.log(`Added labels: ${[...labelsToAdd].join(', ')}`);
